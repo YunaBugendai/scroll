@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>13 Million Pixels</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;color:#000;font-family:Arial,sans-serif;touch-action:none}
+#counter{position:absolute;top:20px;left:0;width:100%;text-align:center;font-size:24px;z-index:1000}
+#message{position:absolute;top:55px;left:0;width:100%;text-align:center;font-size:18px}
+.pop{position:fixed;pointer-events:none;white-space:nowrap;animation:fade 5s linear forwards}
+.pop.idiot{font-size:42px;font-weight:bold}
+@keyframes fade{from{opacity:1}to{opacity:0}}
+#qr{display:none;position:fixed;inset:0;align-items:center;justify-content:center;flex-direction:column;background:#fff;z-index:2000}
+#qr img{width:280px;height:280px;cursor:pointer}
+#qr p{margin-top:15px;font-size:18px}
+body.dark{background:#111;color:#fff}
+body.dark #qr{background:#111;color:#fff}
+</style>
+</head>
+<body>
+<div id="counter">0/13,000,000</div>
+<div id="message">scroll and reach to 10k</div>
+<div id="qr">
+<a id="qrLink" target="_blank">
+<img id="qrImage">
+</a>
+<p>Scan or click the QR code</p>
+</div>
+<script>
+const G=13e6;
+const URL="https://youtu.be/QDia3e12czc?si=ZXp_ZcXaySLODyqH";
+const C=document.getElementById("counter");
+const M=document.getElementById("message");
+const Q=document.getElementById("qr");
+const QI=document.getElementById("qrImage");
+const QL=document.getElementById("qrLink");
+let p=0,t=0,done=0,down=0,lastY=0;
+const keys=new Set();
+
+const jobs=[
+"",
+"1 million pixels. still unemployed.",
+"2 million pixels. still no job.",
+"3 million pixels. your career is going nowhere.",
+"4 million pixels. maybe get a job?",
+"5 million pixels. have you considered employment?",
+"6 million pixels. bro is still unemployed.",
+"7 million pixels. this is getting concerning.",
+"8 million pixels. your resume is crying.",
+"9 million pixels. even the pixels have a job.",
+"10 million pixels. bro is professionally unemployed.",
+"11 million pixels. unemployment speedrun.",
+"12 million pixels. one million more before your career ends.",
+"13 million pixels. congratulations, you wasted your time."
+];
+
+function add(n){
+ if(done||n<=0)return;
+ p=Math.min(G,p+n);
+ C.textContent=Math.floor(p).toLocaleString("en-US")+"/13,000,000";
+
+ let x=Math.floor(p/10000);
+
+ if(x>t){
+  while(t<x){
+   t++;
+
+   if(t%100===0){
+    let million=t/100;
+    M.textContent=jobs[million]||"";
+    pop("idiot",true);
+   }else if(t===1){
+    M.textContent="every 10k gives you a huh";
+    pop("huh",false);
+   }else if(t%10===0){
+    M.textContent="and every 100k gives you an idiot, now reach to 1 million";
+    pop("idiot",true);
+   }else{
+    pop("huh",false);
+   }
+  }
+ }
+
+ if(p===G)finish();
+}
+
+function pop(text,big){
+ let e=document.createElement("div");
+ e.className="pop"+(big?" idiot":"");
+ e.textContent=text;
+ e.style.left=Math.random()*90+5+"vw";
+ e.style.top=Math.random()*85+10+"vh";
+ e.style.transform="rotate("+(Math.random()*90-45)+"deg)";
+ document.body.appendChild(e);
+ setTimeout(()=>e.remove(),5000);
+}
+
+window.addEventListener("wheel",e=>{
+ if(e.deltaY>0)add(e.deltaY);
+ else if(e.deltaY<0&&keys.has("m"))add(-e.deltaY);
+});
+
+window.addEventListener("keydown",e=>keys.add(e.key.toLowerCase()));
+window.addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));
+
+window.addEventListener("mousedown",e=>{
+ if(e.button===0){
+  down=1;
+  lastY=e.clientY;
+ }
+});
+
+window.addEventListener("mouseup",()=>down=0);
+
+window.addEventListener("mousemove",e=>{
+ if(down){
+  let n=lastY-e.clientY;
+  if(n>0)add(n);
+  lastY=e.clientY;
+ }
+});
+
+let touchY=null;
+
+window.addEventListener("touchstart",e=>{
+ if(e.touches.length===1)touchY=e.touches[0].clientY;
+},{passive:false});
+
+window.addEventListener("touchmove",e=>{
+ if(e.touches.length!==1||done)return;
+ e.preventDefault();
+ let y=e.touches[0].clientY;
+ let n=touchY-y;
+ if(n>0)add(n);
+ touchY=y;
+},{passive:false});
+
+window.addEventListener("touchend",()=>touchY=null);
+window.addEventListener("touchcancel",()=>touchY=null);
+
+function finish(){
+ done=1;
+ M.textContent="13 million pixels. congratulations, you wasted your time.";
+ setTimeout(()=>{
+  Q.style.display="flex";
+  QL.href=URL;
+  QI.src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data="+encodeURIComponent(URL);
+ },1000);
+}
+
+function toggleDarkMode(){
+ document.body.classList.toggle("dark");
+}
+</script>
+</body>
+</html>
