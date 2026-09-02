@@ -35,7 +35,7 @@ const M=document.getElementById("message");
 const Q=document.getElementById("qr");
 const QI=document.getElementById("qrImage");
 const QL=document.getElementById("qrLink");
-let p=0,t=0,done=0,down=0,lastY=0;
+let p=Math.min(G,Number(localStorage.getItem("pixels13m"))||0),t=Math.floor(p/10000),done=p===G,down=0,lastY=0;
 const keys=new Set();
 
 const jobs=[
@@ -55,17 +55,25 @@ const jobs=[
 "13 million pixels. congratulations, you wasted your time."
 ];
 
+function update(){
+ C.textContent=Math.floor(p).toLocaleString("en-US")+"/13,000,000";
+ let m=Math.floor(p/1e6);
+ if(p===G)M.textContent=jobs[13];
+ else if(m>0)M.textContent=jobs[m];
+ else if(t>=1&&t%10===0)M.textContent="and every 100k gives you an idiot, now reach to 1 million";
+ else if(t>=1)M.textContent="every 10k gives you a huh";
+ else M.textContent="scroll and reach to 10k";
+}
+
 function add(n){
  if(done||n<=0)return;
  p=Math.min(G,p+n);
+ localStorage.setItem("pixels13m",Math.floor(p));
  C.textContent=Math.floor(p).toLocaleString("en-US")+"/13,000,000";
-
  let x=Math.floor(p/10000);
-
  if(x>t){
   while(t<x){
    t++;
-
    if(t%100===0){
     let million=t/100;
     M.textContent=jobs[million]||"";
@@ -81,7 +89,6 @@ function add(n){
    }
   }
  }
-
  if(p===G)finish();
 }
 
@@ -141,7 +148,8 @@ window.addEventListener("touchcancel",()=>touchY=null);
 
 function finish(){
  done=1;
- M.textContent="13 million pixels. congratulations, you wasted your time.";
+ localStorage.setItem("pixels13m",G);
+ M.textContent=jobs[13];
  setTimeout(()=>{
   Q.style.display="flex";
   QL.href=URL;
@@ -151,6 +159,13 @@ function finish(){
 
 function toggleDarkMode(){
  document.body.classList.toggle("dark");
+}
+
+update();
+if(done){
+ Q.style.display="flex";
+ QL.href=URL;
+ QI.src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data="+encodeURIComponent(URL);
 }
 </script>
 </body>
