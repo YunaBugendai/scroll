@@ -8,6 +8,7 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;color:#000;font-family:Arial,sans-serif;touch-action:none}
 #counter{position:absolute;top:20px;left:0;width:100%;text-align:center;font-size:24px;z-index:1000}
 #message{position:absolute;top:55px;left:0;width:100%;text-align:center;font-size:18px}
+#views{position:fixed;right:10px;bottom:8px;font-size:11px;opacity:.45;pointer-events:none}
 .pop{position:fixed;pointer-events:none;white-space:nowrap;animation:fade 5s linear forwards}
 .pop.idiot{font-size:42px;font-weight:bold}
 @keyframes fade{from{opacity:1}to{opacity:0}}
@@ -21,6 +22,7 @@ body.dark #qr{background:#111;color:#fff}
 <body>
 <div id="counter">0/13,000,000</div>
 <div id="message">scroll and reach to 10k</div>
+<div id="views">👁 <span id="viewCount">—</span></div>
 <div id="qr">
 <a id="qrLink" target="_blank">
 <img id="qrImage">
@@ -32,6 +34,7 @@ const G=13e6;
 const URL="https://youtu.be/QDia3e12czc?si=ZXp_ZcXaySLODyqH";
 const C=document.getElementById("counter");
 const M=document.getElementById("message");
+const V=document.getElementById("viewCount");
 const Q=document.getElementById("qr");
 const QI=document.getElementById("qrImage");
 const QL=document.getElementById("qrLink");
@@ -123,6 +126,10 @@ function finish(){
  },1000);
 }
 function toggleDarkMode(){document.body.classList.toggle("dark")}
+fetch("https://countapi.mileshilliard.com/api/v1/hit/yunabugendai_scroll_views")
+ .then(r=>r.json())
+ .then(d=>V.textContent=Number(d.value).toLocaleString("en-US"))
+ .catch(()=>V.textContent="—");
 update();
 if(done){Q.style.display="flex";QL.href=URL;QI.src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data="+encodeURIComponent(URL)}
 </script>
